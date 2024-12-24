@@ -1,0 +1,17 @@
+version: "3.4"
+
+services:
+  postgres:
+    container_name: teebay-db
+    image: postgres
+    ports:
+      - 5433:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: teebay
+      POSTGRES_DB: teebay
+      POSTGRES_PASSWORD: teebay
+
+volumes:
+  postgres_data:
