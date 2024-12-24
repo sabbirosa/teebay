@@ -35,6 +35,24 @@ class UserService {
     }
   }
 
+  public static getUserById(id: string) {
+    return prismaClient.user.findUnique({
+      where: { id },
+    });
+  }
+
+  public static decodeJWTToken(token: string) {
+    try {
+      return JWT.verify(token, JWT_SECRET);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error decoding JWT token:", error.message);
+        throw new Error("Invalid token. Please log in again.");
+      }
+      throw new Error("An unexpected error occurred during token decoding.");
+    }
+  }
+
   public static async registerUser(payload: RegisterUserPayload) {
     const { firstName, lastName, address, email, phoneNo, password } = payload;
 
