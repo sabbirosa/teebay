@@ -25,7 +25,7 @@ const CreateProduct = () => {
     description: "",
     purchasePrice: "",
     rentPrice: "",
-    rentDuration: "per day",
+    rentDuration: "",
   });
 
   const renderStepContent = () => {

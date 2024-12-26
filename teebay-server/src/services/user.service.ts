@@ -61,8 +61,16 @@ class UserService {
 
       if (existingUser) throw new Error("User with this email already exists.");
 
-      if (password.length < 8) {
-        throw new Error("Password must be at least 8 characters long.");
+      if (
+        password.length < 8 ||
+        !/[A-Z]/.test(password) ||
+        !/[a-z]/.test(password) ||
+        !/[0-9]/.test(password) ||
+        !/[!@#$%^&*]/.test(password)
+      ) {
+        throw new Error(
+          "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+        );
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -82,7 +90,7 @@ class UserService {
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error creating user:", error.message);
-        throw new Error(`Registration failed: ${error.message}`);
+        throw new Error(error.message);
       }
       throw new Error("An unexpected error occurred during registration.");
     }

@@ -13,15 +13,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Rent Time Enum
+enum RentTime {
+  DAY
+  WEEK
+  MONTH
+}
+
+// Transaction Type Enum
+enum TransactionType {
+  BUY
+  RENT
+}
+
+
+// User Model
 model User {
-  id        String    @id @default(uuid())
-  firstName String @map("first_name")
-  lastName  String? @map("last_name")
-  address  String? 
-  email     String    @unique
-  phoneNo   String?    @unique @map("phone_no")
-  password  String
-  token     String?   @unique
+  id            String    @id @default(uuid())
+  firstName     String @map("first_name")
+  lastName      String? @map("last_name")
+  address       String? 
+  email         String    @unique
+  phoneNo       String?    @unique @map("phone_no")
+  password      String
+  products      Product[]
+  transactions  Transaction[]
 
   @@map("users")
 }
+
+// Product Model
+model Product {
+  id            String   @id @default(uuid())
+  title         String?
+  categories    String?
+  description   String?
+  purchasePrice Float? @map("purchase_price")
+  rentPrice     Float? @map("rent_price")
+  rentTime      RentTime? @map("rent_time")
+  views         Int      @default(0)
+  ownerId       String  @map("owner_id")
+  owner         User  @relation(fields: [ownerId], references: [id])
+  transactions  Transaction[]
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+// Transaction Model
+model Transaction {
+  id              String   @id @default(uuid())
+  productId       String @map("product_id")
+  product         Product  @relation(fields: [productId], references: [id])
+  customerId      String  @map("customer_id")
+  customer        User     @relation(fields: [customerId], references: [id])
+  transactionType TransactionType @map("transaction_type")
+  rentTimeFrom        DateTime @map("rent_time_from")
+  rentTimeTo          DateTime @map("rent_time_to")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("transactions")
+}
+

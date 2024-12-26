@@ -4,6 +4,14 @@ import express from "express";
 import createApolloGraphqlServer from "./graphql";
 import UserService from "./services/user.service";
 
+export interface ContextType {
+  user?: {
+    id: string;
+    role: string;
+  };
+  token?: string;
+}
+
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 8000;

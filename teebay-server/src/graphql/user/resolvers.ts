@@ -1,10 +1,15 @@
+import { ContextType } from "../..";
 import UserService, {
   LoginUserPayload,
   RegisterUserPayload,
 } from "../../services/user.service";
 
 const queries = {
-  getCurrentLoggedInUser: async (_: any, __: any, context: any) => {
+  getCurrentLoggedInUser: async (
+    _: unknown,
+    __: unknown,
+    context: ContextType
+  ) => {
     if (context && context.user) {
       const id = context.user.id;
       const user = await UserService.getUserById(id);
@@ -14,13 +19,13 @@ const queries = {
 };
 
 const mutations = {
-  registerUser: async (_: any, payload: RegisterUserPayload) => {
+  registerUser: async (_: unknown, payload: RegisterUserPayload) => {
     const res = await UserService.registerUser(payload);
 
     return res.id;
   },
 
-  loginUser: async (_: any, payload: LoginUserPayload) => {
+  loginUser: async (_: unknown, payload: LoginUserPayload) => {
     const token = await UserService.loginUser(payload);
 
     return token;
