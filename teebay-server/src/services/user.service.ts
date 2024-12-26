@@ -106,7 +106,7 @@ class UserService {
     } catch (error) {
       if (error instanceof Error) {
         console.error("Error logging in user:", error.message);
-        throw new Error("Login failed. Please try again.");
+        throw error;
       }
       throw new Error("An unexpected error occurred during login.");
     }
