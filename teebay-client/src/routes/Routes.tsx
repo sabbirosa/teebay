@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import CreateProduct from "../pages/CreateProduct";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
 import Registration from "../pages/Registration";
@@ -19,6 +20,10 @@ export const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
+  },
+  {
+    path: "create-product",
+    element: <CreateProduct />,
   },
   {
     path: "*",
