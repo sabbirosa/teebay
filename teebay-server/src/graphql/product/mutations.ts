@@ -1,5 +1,5 @@
 export const mutations = `#graphql
-    createProduct(
+    addProduct(
         title: String!, 
         categories: String!, 
         description: String!, 
@@ -18,4 +18,6 @@ export const mutations = `#graphql
         rentTime: RentTime): Product
     
     deleteProduct(id: String!): Product
+
+    incrementViews(id: String!): Product
 `;

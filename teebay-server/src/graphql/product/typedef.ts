@@ -26,7 +26,7 @@ export const typeDefs = `#graphql
     }
 
     type Mutation {
-        createProduct(
+        addProduct(
             title: String!, 
             categories: String!,
             description: String!, 
@@ -47,5 +47,7 @@ export const typeDefs = `#graphql
         ): Product
         
         deleteProduct(id: String!): Product
+
+        incrementViews(id: String!): Product
     }
 `;

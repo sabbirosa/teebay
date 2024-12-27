@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client";
 import {
   Button,
   MultiSelect,
@@ -6,7 +7,10 @@ import {
   Textarea,
   TextInput,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { useState } from "react";
+import { CREATE_PRODUCT } from "../graphql/product/mutations";
+import { useAuth } from "../hooks/useAuth";
 
 interface FormData {
   title: string;
@@ -14,10 +18,10 @@ interface FormData {
   description: string;
   purchasePrice: string;
   rentPrice: string;
-  rentDuration: string;
+  rentTime: string;
 }
 
-const CreateProduct = () => {
+const AddProduct = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -25,8 +29,10 @@ const CreateProduct = () => {
     description: "",
     purchasePrice: "",
     rentPrice: "",
-    rentDuration: "",
+    rentTime: "",
   });
+  const { user } = useAuth();
+  const [addProduct] = useMutation(CREATE_PRODUCT);
 
   const renderStepContent = () => {
     switch (activeStep) {
@@ -121,13 +127,13 @@ const CreateProduct = () => {
                   <Select
                     placeholder="Select option"
                     data={[
-                      { value: "per day", label: "Per Day" },
-                      { value: "per week", label: "Per Week" },
-                      { value: "per month", label: "Per Month" },
+                      { value: "DAY", label: "Per Day" },
+                      { value: "WEEK", label: "Per Week" },
+                      { value: "MONTH", label: "Per Month" },
                     ]}
-                    value={formData.rentDuration}
+                    value={formData.rentTime}
                     onChange={(value) =>
-                      setFormData({ ...formData, rentDuration: value || "" })
+                      setFormData({ ...formData, rentTime: value || "" })
                     }
                     styles={{ input: { maxWidth: 150 } }}
                   />
@@ -154,8 +160,7 @@ const CreateProduct = () => {
                 <strong>Price:</strong> ${formData.purchasePrice}
               </p>
               <p>
-                <strong>Rent:</strong> ${formData.rentPrice}{" "}
-                {formData.rentDuration}
+                <strong>Rent:</strong> ${formData.rentPrice} {formData.rentTime}
               </p>
             </div>
           </>
@@ -178,7 +183,31 @@ const CreateProduct = () => {
   };
 
   const handleSubmit = () => {
-    console.log("Form Submitted", formData);
+    try {
+      addProduct({
+        variables: {
+          title: formData.title,
+          categories: formData.categories.join(", "),
+          description: formData.description,
+          purchasePrice: Number(formData.purchasePrice),
+          rentPrice: Number(formData.rentPrice),
+          rentTime: formData.rentTime,
+          ownerId: user?.id,
+        },
+      });
+      notifications.show({
+        title: "Product created",
+        message: "Your product has been successfully created",
+        color: "teal",
+      });
+    } catch (err) {
+      notifications.show({
+        title: "Error",
+        message: "An error occurred while creating the product",
+        color: "red",
+      });
+      console.error("Error creating product:", err);
+    }
   };
 
   return (
@@ -200,4 +229,4 @@ const CreateProduct = () => {
   );
 };
 
-export default CreateProduct;
+export default AddProduct;

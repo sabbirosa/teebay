@@ -28,7 +28,7 @@ const queries = {
 
 const mutations = {
   // Create a new product
-  createProduct: async (
+  addProduct: async (
     _: unknown,
     payload: ProductPayload,
     context: ContextType
@@ -36,7 +36,7 @@ const mutations = {
     if (!context || !context.user) throw new Error("Unauthorized");
     const userId = context.user.id;
     const productData = { ...payload, ownerId: userId };
-    const res = await ProductService.createProduct(productData);
+    const res = await ProductService.addProduct(productData);
     return res;
   },
 
@@ -74,6 +74,16 @@ const mutations = {
     }
 
     return await ProductService.deleteProduct(args.id);
+  },
+
+  // Increment the views of a product
+  incrementViews: async (
+    _: unknown,
+    args: { id: string },
+    context: ContextType
+  ) => {
+    if (!context || !context.user) throw new Error("Unauthorized");
+    return await ProductService.incrementViews(args.id);
   },
 };
 

@@ -13,7 +13,7 @@ export interface ProductPayload {
 
 export class ProductService {
   // Create Product
-  public static async createProduct(data: ProductPayload) {
+  public static async addProduct(data: ProductPayload) {
     try {
       const product = await prisma.product.create({
         data,
@@ -75,9 +75,16 @@ export class ProductService {
   // Edit Product
   public static async editProduct(id: string, data: Partial<ProductPayload>) {
     try {
+      const sanitizedData = Object.fromEntries(
+        Object.entries(data).filter(
+          ([_, value]) => value !== undefined && value !== null
+        )
+      );
+      console.log("Sanitized Data:", sanitizedData);
+
       const updatedProduct = await prisma.product.update({
         where: { id },
-        data,
+        data: sanitizedData,
       });
       return updatedProduct;
     } catch (error) {
@@ -121,6 +128,28 @@ export class ProductService {
         error instanceof Error
           ? `Fetching user's products failed: ${error.message}`
           : "An unexpected error occurred while fetching the user's products."
+      );
+    }
+  }
+
+  // Increment Product Views
+  public static async incrementViews(id: string) {
+    try {
+      const product = await prisma.product.update({
+        where: { id },
+        data: {
+          views: {
+            increment: 1,
+          },
+        },
+      });
+      return product;
+    } catch (error) {
+      console.error("Error incrementing product views:", error);
+      throw new Error(
+        error instanceof Error
+          ? `Incrementing product views failed: ${error.message}`
+          : "An unexpected error occurred while incrementing the product views."
       );
     }
   }
