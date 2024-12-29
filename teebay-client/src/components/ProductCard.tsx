@@ -45,9 +45,9 @@ function ProductCard({
   };
 
   const confirmDelete = () => {
-    setIsModalOpen(false); // Close the modal
+    setIsModalOpen(false);
     if (onDelete) {
-      onDelete(product.id); // Call the delete function passed from the parent
+      onDelete(product.id);
       notifications.show({
         title: "Product deleted",
         message: `${product.title} has been deleted successfully.`,
@@ -63,11 +63,11 @@ function ProductCard({
   };
 
   const cancelDelete = () => {
-    setIsModalOpen(false); // Close the modal without deleting
+    setIsModalOpen(false);
   };
 
   const toggleDescription = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card click
+    e.stopPropagation();
     setShowFullDescription((prev) => !prev);
   };
 

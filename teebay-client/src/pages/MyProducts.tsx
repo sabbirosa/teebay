@@ -63,11 +63,6 @@ function MyProducts() {
           });
         },
       });
-      notifications.show({
-        title: "Product deleted",
-        message: "Product deleted successfully",
-        color: "green",
-      });
     } catch (error) {
       console.error("Error deleting product:", error);
       notifications.show({
