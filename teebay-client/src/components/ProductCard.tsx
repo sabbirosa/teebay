@@ -1,3 +1,4 @@
+import { Button, Modal } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { FaTrash } from "react-icons/fa";
@@ -28,10 +29,11 @@ function ProductCard({
 }: ProductCardProps) {
   const navigate = useNavigate();
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
     if (isDashboard) {
-      navigate(`edit-product/${product.id}`);
+      navigate(`/edit-product/${product.id}`);
     } else {
       navigate(`/view-product/${product.id}`);
     }
@@ -39,8 +41,18 @@ function ProductCard({
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsModalOpen(true); // Open the modal
+  };
+
+  const confirmDelete = () => {
+    setIsModalOpen(false); // Close the modal
     if (onDelete) {
-      onDelete(product.id);
+      onDelete(product.id); // Call the delete function passed from the parent
+      notifications.show({
+        title: "Product deleted",
+        message: `${product.title} has been deleted successfully.`,
+        color: "green",
+      });
     } else {
       notifications.show({
         title: "Delete functionality not implemented",
@@ -50,58 +62,86 @@ function ProductCard({
     }
   };
 
+  const cancelDelete = () => {
+    setIsModalOpen(false); // Close the modal without deleting
+  };
+
   const toggleDescription = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card click
     setShowFullDescription((prev) => !prev);
   };
 
   return (
-    <div
-      className="p-4 border border-gray-200 shadow-sm bg-white cursor-pointer"
-      onClick={handleCardClick}
-    >
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium text-gray-700">{product.title}</h2>
-        {isDashboard && (
-          <button
-            onClick={handleDeleteClick}
-            className="text-gray-500 hover:text-red-500"
+    <>
+      {/* Delete Confirmation Modal */}
+      <Modal
+        opened={isModalOpen}
+        onClose={cancelDelete}
+        title="Delete Product"
+        centered
+      >
+        <p>Are you sure you want to delete this product?</p>
+        <div className="flex justify-end gap-4 mt-4">
+          <Button color="red" onClick={cancelDelete}>
+            No
+          </Button>
+          <Button
+            className="bg-[#6558F5] hover:bg-[#4D3DD9]"
+            onClick={confirmDelete}
           >
-            <FaTrash />
-          </button>
+            Yes
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Product Card */}
+      <div
+        className="p-4 mb-4 border border-gray-200 shadow-sm bg-white cursor-pointer"
+        onClick={handleCardClick}
+      >
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-medium text-gray-700">{product.title}</h2>
+          {isDashboard && (
+            <button
+              onClick={handleDeleteClick}
+              className="text-gray-500 hover:text-red-500"
+            >
+              <FaTrash />
+            </button>
+          )}
+        </div>
+        <p className="text-sm text-gray-500">
+          Categories: {product.categories.split(", ").join(", ")}
+        </p>
+        <p className="text-gray-700">
+          {showFullDescription
+            ? product.description
+            : `${product.description.slice(0, 100)}...`}
+          {product.description.length > 100 && (
+            <button
+              onClick={toggleDescription}
+              className="ml-2 text-blue-500 hover:underline"
+            >
+              {showFullDescription ? "Show Less" : "More Details"}
+            </button>
+          )}
+        </p>
+        {showDateAndViews && (
+          <div className="flex justify-between items-center mt-4">
+            <p className="text-xs text-gray-400 mt-2">
+              Date posted:{" "}
+              {product.createdAt &&
+                new Intl.DateTimeFormat("en-GB", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                }).format(new Date(parseInt(product.createdAt)))}
+            </p>
+            <p className="text-xs text-gray-400 mt-2">Views: {product.views}</p>
+          </div>
         )}
       </div>
-      <p className="text-sm text-gray-500">
-        Categories: {product.categories.split(", ").join(", ")}
-      </p>
-      <p className="text-gray-700">
-        {showFullDescription
-          ? product.description
-          : `${product.description.slice(0, 100)}...`}
-        {product.description.length > 100 && (
-          <button
-            onClick={toggleDescription}
-            className="ml-2 text-blue-500 hover:underline"
-          >
-            {showFullDescription ? "Show Less" : "More Details"}
-          </button>
-        )}
-      </p>
-      {showDateAndViews && (
-        <div className="flex justify-between items-center mt-4">
-          <p className="text-xs text-gray-400 mt-2">
-            Date posted:{" "}
-            {product.createdAt &&
-              new Intl.DateTimeFormat("en-GB", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              }).format(new Date(parseInt(product.createdAt)))}
-          </p>
-          <p className="text-xs text-gray-400 mt-2">Views: {product.views}</p>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 

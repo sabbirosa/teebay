@@ -15,7 +15,7 @@ export interface TransactionPayload {
 
 export class TransactionService {
   // Get all products the user has sold
-  async getProductsSold(userId: string) {
+  public static async getProductsSold(userId: string) {
     return prisma.transaction.findMany({
       where: {
         product: { ownerId: userId },
@@ -26,7 +26,7 @@ export class TransactionService {
   }
 
   // Get all products the user has bought
-  async getProductsBought(userId: string) {
+  public static async getProductsBought(userId: string) {
     return prisma.transaction.findMany({
       where: { customerId: userId, transactionType: TransactionType.BUY },
       include: { product: true, customer: true },
@@ -34,7 +34,7 @@ export class TransactionService {
   }
 
   // Get all products the user has lent out
-  async getProductsLent(userId: string) {
+  public static async getProductsLent(userId: string) {
     return prisma.transaction.findMany({
       where: {
         product: { ownerId: userId },
@@ -45,7 +45,7 @@ export class TransactionService {
   }
 
   // Get all products the user has borrowed
-  async getProductsBorrowed(userId: string) {
+  public static async getProductsBorrowed(userId: string) {
     return prisma.transaction.findMany({
       where: { customerId: userId, transactionType: TransactionType.RENT },
       include: { product: true, customer: true },
@@ -53,9 +53,10 @@ export class TransactionService {
   }
 
   // Buy a product
-  async buyProduct(payload: TransactionPayload) {
+  public static async buyProduct(payload: TransactionPayload) {
     const { productId, customerId } = payload;
 
+    // Fetch the product
     const product = await prisma.product.findUnique({
       where: { id: productId },
     });
@@ -64,7 +65,7 @@ export class TransactionService {
       throw new Error("Product not found");
     }
 
-    // Optional: Check if the product is already sold
+    // Check if the product is already sold
     const existingTransaction = await prisma.transaction.findFirst({
       where: {
         productId,
@@ -76,19 +77,26 @@ export class TransactionService {
       throw new Error("Product is already sold");
     }
 
-    return prisma.transaction.create({
+    // Create the transaction
+    const transaction = await prisma.transaction.create({
       data: {
         productId,
         customerId,
         transactionType: TransactionType.BUY,
-        rentTimeFrom: new Date(),
-        rentTimeTo: new Date(),
+        rentTimeFrom: new Date(), // Placeholder values
+        rentTimeTo: new Date(), // Placeholder values
       },
+    });
+
+    // Fetch and return the transaction with product and customer included
+    return prisma.transaction.findUnique({
+      where: { id: transaction.id },
+      include: { product: true, customer: true }, // Ensure customer is included
     });
   }
 
   // Rent a product
-  async rentProduct(payload: TransactionPayload) {
+  public static async rentProduct(payload: TransactionPayload) {
     const { productId, customerId, rentTimeFrom, rentTimeTo } = payload;
 
     if (rentTimeFrom >= rentTimeTo) {
@@ -97,6 +105,7 @@ export class TransactionService {
       );
     }
 
+    // Fetch the product
     const product = await prisma.product.findUnique({
       where: { id: productId },
     });
@@ -123,7 +132,8 @@ export class TransactionService {
       throw new Error("Product is already rented for the requested period");
     }
 
-    return prisma.transaction.create({
+    // Create the transaction
+    const transaction = await prisma.transaction.create({
       data: {
         productId,
         customerId,
@@ -131,6 +141,12 @@ export class TransactionService {
         rentTimeFrom,
         rentTimeTo,
       },
+    });
+
+    // Fetch and return the transaction with product and customer included
+    return prisma.transaction.findUnique({
+      where: { id: transaction.id },
+      include: { product: true, customer: true }, // Ensure customer is included
     });
   }
 }

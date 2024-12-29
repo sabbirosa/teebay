@@ -1,7 +1,9 @@
 import { useMutation, useQuery } from "@apollo/client";
+import { Button } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import ErrorComponent from "../components/ErrorComponent";
+import Loading from "../components/LoadingComponent";
 import ProductCard from "../components/ProductCard";
 import { DELETE_PRODUCT } from "../graphql/product/mutations";
 import { GET_PRODUCTS_BY_OWNER } from "../graphql/product/queries";
@@ -19,18 +21,21 @@ export interface Product {
   createdAt?: string;
 }
 
-function Dashboard() {
+function MyProducts() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
   const [deleteProduct] = useMutation(DELETE_PRODUCT);
 
-  // Redirect to login if user is not authenticated
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
-  }, [user, navigate]);
+  // Fetch user's products
+  const { data, loading, error } = useQuery(GET_PRODUCTS_BY_OWNER, {
+    variables: { ownerId: user?.id },
+    skip: !user,
+  });
+
+  if (loading) return <Loading />;
+  if (error) return <ErrorComponent errorMessage={error.message} />;
+
+  const products = data?.getUserProducts || [];
 
   const handleLogout = () => {
     logout();
@@ -39,30 +44,11 @@ function Dashboard() {
       message: "You have successfully logged out.",
       color: "green",
     });
-    navigate("/login");
   };
 
-  // Fetch user's products
-  const { data, loading, error } = useQuery(GET_PRODUCTS_BY_OWNER, {
-    variables: { ownerId: user?.id },
-    skip: !user,
-  });
-
-  if (loading)
-    return <div className="text-center mt-8 text-gray-600">Loading...</div>;
-  if (error)
-    return (
-      <div className="text-center mt-8 text-red-600">
-        Error loading products
-      </div>
-    );
-
-  const products = data?.getUserProducts || [];
-
-  const handleDelete = (productId: string) => {
-    // Implement delete functionality here
+  const handleDelete = async (productId: string) => {
     try {
-      deleteProduct({
+      await deleteProduct({
         variables: { id: productId },
         update(cache) {
           cache.modify({
@@ -94,45 +80,50 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 py-10">
-      <div className="grid grid-cols-1 place-items-end mb-10 mx-6">
-        <button
+      {/* Logout Button */}
+      <div className="grid grid-cols-1 place-items-end mb-6 mx-4">
+        <Button
           onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          className="bg-[#D3455B] hover:bg-[#D8374F]"
         >
           Logout
-        </button>
+        </Button>
       </div>
-      <div className="max-w-4xl mx-auto p-4">
+
+      <div className="max-w-6xl mx-auto py-8 px-4">
         {/* Header Section */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">My Products</h1>
+        <div className="text-center mb-8">
+          <h2 className="font-bold text-3xl text-gray-800">Your Products</h2>
         </div>
 
         {/* Products List */}
-        <div className="space-y-4">
-          {products.map((product: Product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onDelete={handleDelete}
-              isDashboard
-              showDateAndViews
-            />
-          ))}
-        </div>
+        {products.length > 0 ? (
+          <div className="w-2/3 mx-auto grid grid-cols-1 gap-6">
+            {products.map((product: Product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onDelete={handleDelete}
+                isDashboard
+                showDateAndViews
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-600">
+            You have not added any products yet.
+          </p>
+        )}
 
         {/* Add Product Button */}
-        <div className="grid grid-cols-1 place-items-end mt-10">
-          <button
-            onClick={() => navigate("add-product")}
-            className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-          >
-            Add Product
-          </button>
+        <div className="w-2/3 mx-auto flex justify-end mt-10">
+          <Button className="bg-[#6558F5] hover:bg-[#4D3DD9]">
+            <Link to="/add-product">Add Product</Link>
+          </Button>
         </div>
       </div>
     </div>
   );
 }
 
-export default Dashboard;
+export default MyProducts;

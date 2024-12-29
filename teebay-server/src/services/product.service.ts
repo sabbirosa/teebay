@@ -80,7 +80,6 @@ export class ProductService {
           ([_, value]) => value !== undefined && value !== null
         )
       );
-      console.log("Sanitized Data:", sanitizedData);
 
       const updatedProduct = await prisma.product.update({
         where: { id },

@@ -1,11 +1,16 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import AddProduct from "../pages/AddProduct";
-import AllProdcuts from "../pages/AllProdcuts";
-import Dashboard from "../pages/Dashboard";
-import EditProduct from "../pages/EditProduct";
-import Login from "../pages/Login";
-import Registration from "../pages/Registration";
-import ViewProduct from "../pages/ViewProduct";
+import {
+  AddProduct,
+  AllProducts,
+  EditProduct,
+  History,
+  Login,
+  MyProducts,
+  Registration,
+  ViewProduct,
+} from "../components/LazyComponents";
+import NotFound from "../pages/NotFound";
+import PrivateRoute from "./PrivateRoute";
 
 export const router = createBrowserRouter([
   {
@@ -21,27 +26,36 @@ export const router = createBrowserRouter([
     element: <Registration />,
   },
   {
-    path: "/dashboard",
-    element: <Dashboard />,
-  },
-  {
-    path: "/dashboard/add-product",
-    element: <AddProduct />,
-  },
-  {
-    path: "/dashboard/edit-product/:id",
-    element: <EditProduct />,
-  },
-  {
-    path: "/view-product/:id",
-    element: <ViewProduct />,
-  },
-  {
-    path: "/all-products",
-    element: <AllProdcuts />,
+    element: <PrivateRoute />,
+    children: [
+      {
+        path: "/my-products",
+        element: <MyProducts />,
+      },
+      {
+        path: "/add-product",
+        element: <AddProduct />,
+      },
+      {
+        path: "/edit-product/:id",
+        element: <EditProduct />,
+      },
+      {
+        path: "/history",
+        element: <History />,
+      },
+      {
+        path: "/view-product/:id",
+        element: <ViewProduct />,
+      },
+      {
+        path: "/all-products",
+        element: <AllProducts />,
+      },
+    ],
   },
   {
     path: "*",
-    element: <Navigate to="/login" replace />,
+    element: <NotFound />,
   },
 ]);

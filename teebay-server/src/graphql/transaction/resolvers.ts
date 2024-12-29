@@ -3,8 +3,6 @@ import TransactionService, {
   TransactionPayload,
 } from "../../services/transaction.service";
 
-const transactionService = new TransactionService();
-
 const queries = {
   // Get all products the user has sold
   getProductsSold: async (
@@ -13,7 +11,7 @@ const queries = {
     context: ContextType
   ) => {
     if (!context || !context.user) throw new Error("Unauthorized");
-    return transactionService.getProductsSold(args.userId);
+    return TransactionService.getProductsSold(args.userId);
   },
 
   // Get all products the user has bought
@@ -23,7 +21,7 @@ const queries = {
     context: ContextType
   ) => {
     if (!context || !context.user) throw new Error("Unauthorized");
-    return transactionService.getProductsBought(args.userId);
+    return TransactionService.getProductsBought(args.userId);
   },
 
   // Get all products the user has lent out
@@ -33,7 +31,7 @@ const queries = {
     context: ContextType
   ) => {
     if (!context || !context.user) throw new Error("Unauthorized");
-    return transactionService.getProductsLent(args.userId);
+    return TransactionService.getProductsLent(args.userId);
   },
 
   // Get all products the user has borrowed
@@ -43,7 +41,7 @@ const queries = {
     context: ContextType
   ) => {
     if (!context || !context.user) throw new Error("Unauthorized");
-    return transactionService.getProductsBorrowed(args.userId);
+    return TransactionService.getProductsBorrowed(args.userId);
   },
 };
 
@@ -64,7 +62,7 @@ const mutations = {
       rentTimeTo: new Date(),
     };
 
-    return transactionService.buyProduct(payload);
+    return TransactionService.buyProduct(payload);
   },
 
   // Rent a product
@@ -88,7 +86,7 @@ const mutations = {
       rentTimeTo: args.rentTimeTo,
     };
 
-    return transactionService.rentProduct(payload);
+    return TransactionService.rentProduct(payload);
   },
 };
 

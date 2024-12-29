@@ -61,6 +61,11 @@ function Registration() {
         message: "You have successfully registered. Please login to continue.",
       });
     } catch (err) {
+      notifications.show({
+        title: "Registration failed",
+        message: "An error occurred while registering. Please try again.",
+        color: "red",
+      });
       console.error("Error during registration:", err);
     }
   };

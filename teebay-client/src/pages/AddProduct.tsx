@@ -48,6 +48,7 @@ const AddProduct = () => {
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
+              className="w-full"
             />
           </>
         );
@@ -71,6 +72,7 @@ const AddProduct = () => {
               onChange={(value) =>
                 setFormData({ ...formData, categories: value })
               }
+              className="w-full"
             />
           </>
         );
@@ -82,11 +84,11 @@ const AddProduct = () => {
             </h2>
             <Textarea
               placeholder="Enter product description"
-              styles={{ input: { height: 120 } }}
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
+              className="w-full"
             />
           </>
         );
@@ -97,21 +99,20 @@ const AddProduct = () => {
               Set pricing
             </h2>
             <div className="space-y-4">
+              <NumberInput
+                placeholder="Enter purchase price"
+                label="Purchase Price"
+                value={formData.purchasePrice}
+                onChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    purchasePrice: value?.toString() || "",
+                  })
+                }
+                className="w-full"
+              />
               <div>
-                <NumberInput
-                  placeholder="Enter purchase price"
-                  label="Purchase Price"
-                  value={formData.purchasePrice}
-                  onChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      purchasePrice: value?.toString() || "",
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <p>Rent Price:</p>
+                <p className="font-medium mb-2">Rent Price:</p>
                 <div className="flex items-center space-x-4">
                   <NumberInput
                     placeholder="$50"
@@ -122,7 +123,7 @@ const AddProduct = () => {
                         rentPrice: value?.toString() || "",
                       })
                     }
-                    styles={{ input: { maxWidth: 100 } }}
+                    className="flex-1"
                   />
                   <Select
                     placeholder="Select option"
@@ -135,7 +136,7 @@ const AddProduct = () => {
                     onChange={(value) =>
                       setFormData({ ...formData, rentTime: value || "" })
                     }
-                    styles={{ input: { maxWidth: 150 } }}
+                    className="flex-1"
                   />
                 </div>
               </div>
@@ -146,7 +147,7 @@ const AddProduct = () => {
         return (
           <>
             <h2 className="text-xl font-semibold mb-4 text-center">Summary</h2>
-            <div className="space-y-2">
+            <div className="space-y-2 text-gray-700">
               <p>
                 <strong>Title:</strong> {formData.title}
               </p>
@@ -182,9 +183,9 @@ const AddProduct = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
-      addProduct({
+      await addProduct({
         variables: {
           title: formData.title,
           categories: formData.categories.join(", "),
@@ -212,16 +213,30 @@ const AddProduct = () => {
 
   return (
     <div className="h-screen flex items-center justify-center">
-      <div className="w-1/2 mx-auto p-6 bg-white rounded shadow">
+      <div className="w-full max-w-md mx-auto p-6 bg-white rounded shadow space-y-6">
         {renderStepContent()}
-        <div className="flex justify-between mt-6">
-          <Button onClick={prevStep} disabled={activeStep === 0}>
+        <div className="flex justify-between">
+          <Button
+            onClick={prevStep}
+            disabled={activeStep === 0}
+            className="bg-[#6558F5] hover:bg-[#4D3DD9]"
+          >
             Back
           </Button>
           {activeStep === 4 ? (
-            <Button onClick={handleSubmit}>Submit</Button>
+            <Button
+              onClick={handleSubmit}
+              className="bg-[#6558F5] hover:bg-[#4D3DD9]"
+            >
+              Submit
+            </Button>
           ) : (
-            <Button onClick={nextStep}>Next</Button>
+            <Button
+              onClick={nextStep}
+              className="bg-[#6558F5] hover:bg-[#4D3DD9]"
+            >
+              Next
+            </Button>
           )}
         </div>
       </div>

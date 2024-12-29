@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import { Button, Input, PasswordInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LOGIN_USER } from "../graphql/user/mutations";
 import { useAuth } from "../hooks/useAuth";
@@ -11,20 +11,27 @@ function Login() {
   const { user, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loginUser, { loading, error }] = useMutation(LOGIN_USER);
 
-  if (user) {
-    navigate("/dashboard");
-  }
+  useEffect(() => {
+    if (user) {
+      navigate("/my-products");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await loginUser({
-        variables: { email, password },
+    if (!email || !password) {
+      notifications.show({
+        title: "Validation error",
+        message: "Email and password are required.",
+        color: "yellow",
       });
+      return;
+    }
 
+    try {
+      const response = await loginUser({ variables: { email, password } });
       const token = response.data.loginUser;
       login(token);
       notifications.show({
@@ -32,8 +39,13 @@ function Login() {
         message: "You have successfully logged in.",
         color: "green",
       });
-      navigate("/dashboard");
+      navigate("/my-products");
     } catch (err) {
+      notifications.show({
+        title: "Login failed",
+        message: "Invalid email or password. Please try again.",
+        color: "red",
+      });
       console.error("Login failed:", err);
     }
   };
@@ -51,6 +63,7 @@ function Login() {
           <Input
             placeholder="Email"
             className="w-full"
+            aria-label="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -58,6 +71,7 @@ function Login() {
           <PasswordInput
             placeholder="Password"
             className="w-full"
+            aria-label="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -67,6 +81,7 @@ function Login() {
             size="md"
             type="submit"
             disabled={loading}
+            aria-label="Login Button"
           >
             {loading ? "Logging in..." : "LOGIN"}
           </Button>

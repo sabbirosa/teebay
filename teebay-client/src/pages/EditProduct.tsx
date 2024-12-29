@@ -16,7 +16,6 @@ import { useProduct } from "../hooks/useProduct";
 const EditProduct = () => {
   const { id } = useParams<{ id: string }>();
 
-  // Fetch product data using custom hook
   const { product, loading, error } = useProduct(id!, false);
 
   const [formData, setFormData] = useState<{
@@ -32,17 +31,16 @@ const EditProduct = () => {
     description: "",
     purchasePrice: "",
     rentPrice: "",
-    rentTime: "per hr",
+    rentTime: "DAY",
   });
 
   const [editProduct] = useMutation(EDIT_PRODUCT);
 
-  // Prefill form when product data is loaded
   useEffect(() => {
     if (product) {
       setFormData({
         title: product.title,
-        categories: product.categories.split(", "), // Split string categories into an array
+        categories: product.categories.split(", "),
         description: product.description,
         purchasePrice: product.purchasePrice.toString(),
         rentPrice: product.rentPrice.toString(),
@@ -51,7 +49,6 @@ const EditProduct = () => {
     }
   }, [product]);
 
-  // Input handlers
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -73,7 +70,7 @@ const EditProduct = () => {
         variables: {
           id,
           title: formData.title,
-          categories: formData.categories.join(", "), // Join categories array into a string
+          categories: formData.categories.join(", "),
           description: formData.description,
           purchasePrice: parseFloat(formData.purchasePrice),
           rentPrice: parseFloat(formData.rentPrice),
@@ -95,24 +92,36 @@ const EditProduct = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="text-center mt-12">Loading...</div>;
 
-  if (error) return <div>Error! {error.message}</div>;
+  if (error)
+    return (
+      <div className="text-center mt-12 text-red-500">
+        Error! {error.message}
+      </div>
+    );
 
-  if (!product) return <div>Product not found</div>;
+  if (!product)
+    return <div className="text-center mt-12">Product not found</div>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 p-6 bg-white shadow-md rounded">
-      <h1 className="text-2xl font-semibold mb-6 text-center">Edit Product</h1>
+    <div className="max-w-3xl mx-auto mt-12 p-8 bg-white shadow rounded-lg">
+      <h1 className="text-2xl font-semibold mb-6 text-center text-gray-800">
+        Edit Product
+      </h1>
       <div className="space-y-6">
+        {/* Title Input */}
         <TextInput
           label="Title"
           placeholder="Enter product title"
           value={formData.title}
           onChange={handleInputChange}
           name="title"
+          className="w-full"
           required
         />
+
+        {/* Categories MultiSelect */}
         <MultiSelect
           label="Categories"
           placeholder="Select categories"
@@ -126,7 +135,10 @@ const EditProduct = () => {
           ]}
           value={formData.categories}
           onChange={handleCategoriesChange}
+          className="w-full"
         />
+
+        {/* Description TextArea */}
         <Textarea
           label="Description"
           placeholder="Enter product description"
@@ -135,11 +147,14 @@ const EditProduct = () => {
           name="description"
           minRows={6}
           required
+          autosize
         />
-        <div className="grid grid-cols-2 gap-4">
+
+        {/* Price and Rent Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <NumberInput
-            label="Price"
-            placeholder="$1500"
+            label="Purchase Price"
+            placeholder="Enter price (e.g., 1500)"
             value={parseFloat(formData.purchasePrice) || undefined}
             onChange={(value) =>
               setFormData({
@@ -149,37 +164,43 @@ const EditProduct = () => {
             }
             required
           />
-          <div>
+          <div className="flex gap-4 items-end">
             <NumberInput
-              label="Rent"
-              placeholder="$50"
+              label="Rent Price"
+              placeholder="Enter rent price (e.g., 50)"
               value={parseFloat(formData.rentPrice) || undefined}
               onChange={(value) =>
-                setFormData({ ...formData, rentPrice: value?.toString() || "" })
+                setFormData({
+                  ...formData,
+                  rentPrice: value?.toString() || "",
+                })
               }
               required
             />
             <Select
-              placeholder="Select option"
+              placeholder="Select rent period"
               data={[
-                { value: "per hr", label: "Per Hour" },
-                { value: "per day", label: "Per Day" },
-                { value: "per week", label: "Per Week" },
+                { value: "DAY", label: "Per Day" },
+                { value: "WEEK", label: "Per Week" },
+                { value: "MONTH", label: "Per Month" },
               ]}
               value={formData.rentTime}
               onChange={handleRentTimeChange}
-              className="mt-2"
+              className="mt-4"
               required
             />
           </div>
         </div>
-        <Button
-          onClick={handleSubmit}
-          fullWidth
-          className="mt-4 bg-blue-600 hover:bg-blue-700"
-        >
-          Edit Product
-        </Button>
+
+        {/* Submit Button */}
+        <div className="flex justify-end">
+          <Button
+            onClick={handleSubmit}
+            className="bg-[#6558F5] hover:bg-[#4D3DD9]"
+          >
+            Edit Product
+          </Button>
+        </div>
       </div>
     </div>
   );
